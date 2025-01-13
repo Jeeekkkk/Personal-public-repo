@@ -1,0 +1,71 @@
+# Loads default set of integrations. Do not remove.
+default_config:
+
+# Load frontend themes from the themes folder
+frontend:
+  themes: !include_dir_merge_named themes
+
+# -----------------------------------------------------------------
+#Reference Files
+zone: !include zone.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+#secrets: !include secrets.yaml
+# sensors: !include sensors.yaml
+
+
+
+
+# -----------------------------------------------------------------
+# MISC
+
+# Enable python scripts
+python_script:
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+#Github script
+shell_command:
+  pushupdates_to_github: /bin/bash pushupdates.sh
+
+# Folder Watcher Config (For GitHub sync)
+folder_watcher:
+  - folder: /config
+
+# Allow Folder Watcher access (For GitHub sync)
+homeassistant:
+  allowlist_external_dirs:
+    - /config
+
+# -----------------------------------------------------------------
+# SENSOR CONFIGS
+sensor:
+  - platform: illuminance
+    # Name of the new sensor entity
+    name: Home Outdoor Illuminance
+    mode: normal
+    # Existing entity that provides current weather conditions
+    entity_id: sensor.openweathermap_cloud_coverage
+
+# -----------------------------------------------------------------
+# CUSTOM SIDEBAR ITEMS
+panel_custom:
+  # Automations
+  - name: panel_automations
+    sidebar_title: Automations
+    sidebar_icon: mdi:cogs
+    url_path: "config/automation"
+    module_url: /api/hassio/app/entrypoint.js
+    embed_iframe: true
+    require_admin: true
+    # Integrations/Devices
+  - name: panel_integrations_devices
+    sidebar_title: Integrations/Devices
+    sidebar_icon: mdi:cogs
+    url_path: "config/integrations"
+    module_url: /api/hassio/app/entrypoint.js
+    embed_iframe: true
+    require_admin: true

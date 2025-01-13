@@ -1,0 +1,5 @@
+#Custom Home Radius
+- name: Home
+  latitude: ***Redacted***
+  longitude: ***Redacted***
+  radius: 10

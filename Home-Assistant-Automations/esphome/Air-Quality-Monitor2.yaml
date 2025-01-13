@@ -1,0 +1,60 @@
+esphome:
+  name: Air-Quality-Monitor2r
+  friendly_name: Air-Quality-Monitor2
+
+rp2040:
+  board: rpipicow
+  framework:
+    # Required until https://github.com/platformio/platform-raspberrypi/pull/36 is merged
+    platform_version: https://github.com/maxgerhardt/platform-raspberrypi.git
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "****REDACTED****"
+
+ota:
+  password: "****REDACTED****"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot in case wifi connection fails
+  ap:
+    ssid: "Pico-air-qualuity-monitor2 Fallback Hotspot"
+    password: "****REDACTED****"
+    
+#LED Blinker
+switch:
+  - platform: gpio
+    pin:
+      number: 32
+      mode: output
+    id: LED
+interval:
+  - interval: 3s
+    then:
+      - switch.turn_on: LED
+      - delay: 500ms
+      - switch.turn_off: LED
+
+i2c:
+  - id: bus_a
+    sda: 20
+    scl: 21
+    scan: True
+  
+sensor:
+  - platform: scd30
+    co2:
+      name: "CO2_Upper"
+    temperature:
+      name: "Temperature_Upper"
+    humidity:
+      name: "Humidity_Upper"
+    address: 0x61
+    i2c_id: bus_a

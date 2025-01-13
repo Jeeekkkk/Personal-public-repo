@@ -1,0 +1,2162 @@
+- id: '1676698948892'
+  alias: 'Lights: Living Loom'
+  description: ''
+  trigger:
+  - platform: time_pattern
+    minutes: /2
+  - platform: state
+    entity_id:
+    - automation.helper_livingroom_light_override
+    alias: ' When Livingroom Light Override changes state'
+  - platform: state
+    entity_id:
+    - input_boolean.phones_charging_mode
+    alias: ' When Phones Charging Mode changes state'
+  - platform: state
+    entity_id:
+    - binary_sensor.lumi_lumi_sensor_motion_aq2_occupancy_3
+    alias: When Living room motion sensor Occupancy changes state
+  - platform: state
+    entity_id:
+    - input_boolean.away
+    alias: When Away changes state
+  - platform: state
+    entity_id:
+    - input_boolean.guest_mode
+    alias: When Guest Mode changes state
+  condition:
+  - condition: state
+    entity_id: input_boolean.living_room_light_override
+    state: 'off'
+  action:
+  - choose:
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: state
+          entity_id: input_boolean.away
+          state: 'off'
+        - condition: time
+          after: '15:30:00'
+          before: '20:45:00'
+          alias: 'Time Condition: Between 3:30-10:45pm'
+        - condition: numeric_state
+          entity_id: sensor.living_room_motion_sensor_illuminance
+          below: 180
+          enabled: false
+        - condition: state
+          entity_id: input_boolean.living_room_light_override
+          state: 'off'
+          alias: Test if Livingroom Light Override is 'Off'
+        - condition: numeric_state
+          entity_id: sensor.home_outdoor_illuminance
+          below: 1000
+          enabled: false
+      sequence:
+      - service: light.turn_on
+        data:
+          brightness_pct: 100
+          color_temp: 377
+          transition: 60
+        target:
+          device_id:
+          - 209fbe9d76bbea2643b7478efda5d990
+          - 2fc15768e96661e067f1736aaed1ea15
+          - 0f1c9e6fdc37df7643ae1daf462d98c1
+    enabled: true
+    alias: Turn On
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: state
+          entity_id: media_player.bedroom_tv
+          state: playing
+        - condition: numeric_state
+          entity_id: sensor.living_room_motion_sensor_illuminance
+          above: 180
+          enabled: true
+        - condition: state
+          entity_id: automation.helper_livingroom_light_override
+          state: 'off'
+          alias: Test if Livingroom Light Override is 'Off'
+        - condition: state
+          entity_id: input_boolean.phones_charging_mode
+          state: 'on'
+        - condition: state
+          state: 'off'
+          for:
+            hours: 0
+            minutes: 45
+            seconds: 0
+          alias: Confirm Living Room Motion Sensor is Clear for 2h
+          enabled: false
+          entity_id: binary_sensor.living_room_motion_sensor_motion
+        - condition: and
+          conditions:
+          - condition: state
+            entity_id: input_boolean.away
+            state: 'on'
+          - condition: state
+            entity_id: input_boolean.guest_mode
+            state: 'off'
+          alias: Confirm Away Mode is on AND Guest Mode is off
+      sequence:
+      - service: light.turn_off
+        data:
+          transition: 4
+        target:
+          device_id:
+          - 209fbe9d76bbea2643b7478efda5d990
+          - 2fc15768e96661e067f1736aaed1ea15
+          - 0f1c9e6fdc37df7643ae1daf462d98c1
+    enabled: true
+    alias: Turn Off
+  mode: single
+- id: '1677450532611'
+  alias: 'terrarium: Lights'
+  description: ''
+  trigger:
+  - platform: time_pattern
+    minutes: /2
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: or
+          conditions:
+          - condition: state
+            entity_id: input_boolean.setting_mode_upper
+            state: 'on'
+          - condition: state
+            entity_id: input_boolean.pre_setting_mode_upper
+            state: 'on'
+          alias: setting Mode Checker
+        - condition: time
+          after: 08:00:00
+          before: '20:00:00'
+          alias: 'Time Condition: Between 8am-8pm'
+      sequence:
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: switch.terrarium_light_upper
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: state
+          entity_id: input_boolean.setting_mode_upper
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.pre_setting_mode_upper
+          state: 'off'
+        - condition: not
+          conditions:
+          - condition: time
+            after: 08:00:00
+            before: '20:00:00'
+            alias: 'Time Condition: Between 8am-8pm'
+        alias: Test if setting Modes Off Or Not 8am-8pm
+      sequence:
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: switch.terrarium_light_upper
+    alias: Main On/Off- Upper
+  - choose:
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: or
+          conditions:
+          - condition: state
+            entity_id: input_boolean.setting_mode_lower
+            state: 'on'
+          - condition: state
+            entity_id: input_boolean.pre_setting_mode_lower
+            state: 'on'
+          alias: setting Mode Checker
+        - condition: time
+          after: 08:00:00
+          before: '20:00:00'
+          alias: 'Time Condition: Between 8am-8pm'
+      sequence:
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: switch.terrarium_light_lower
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: state
+          entity_id: input_boolean.setting_mode_lower
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.pre_setting_mode_lower
+          state: 'off'
+        - condition: not
+          conditions:
+          - condition: time
+            after: 08:00:00
+            before: '20:00:00'
+            alias: 'Time Condition: Between 8am-8pm'
+        alias: Test if setting Modes Off Or Not 8am-8pm
+      sequence:
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: switch.terrarium_light_lower
+    alias: Main On/Off- Lower
+  - if:
+    - condition: state
+      entity_id: input_boolean.terrarium_light_override_upper
+      state: 'on'
+      for:
+        hours: 1
+        minutes: 0
+        seconds: 0
+    then:
+    - service: input_boolean.turn_off
+      data: {}
+      target:
+        entity_id: input_boolean.terrarium_light_override_upper
+    alias: 'If - Then: Light Override Time Toggle (Upper)'
+  - if:
+    - condition: state
+      entity_id: input_boolean.terrarium_light_override_lower
+      state: 'on'
+      for:
+        hours: 1
+        minutes: 0
+        seconds: 0
+    then:
+    - service: input_boolean.turn_off
+      data: {}
+      target:
+        entity_id: input_boolean.terrarium_light_override_lower
+    alias: 'If - Then: Light Override Time Toggle (Lower)'
+  mode: single
+- id: '1677461849393'
+  alias: 'Mode: Away'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.jpixel_wifi_connection
+    - sensor.epixel_wifi_connection
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+    alias: When phone wifi change state
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: state
+          entity_id: sensor.jpixel_wifi_connection
+          state: DuneGoonz
+        - condition: state
+          state: DuneGoonz
+          entity_id: sensor.epixel_wifi_connection
+        alias: Test if Jake's OR Erica's phone is connected to home wifi
+      sequence:
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.away
+        data: {}
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: not
+          conditions:
+          - condition: state
+            entity_id: sensor.jpixel_wifi_connection
+            state: DuneGoonz
+          alias: Test if NOT jPixel WIFI= 'DuneGoonz'
+        - condition: not
+          conditions:
+          - condition: state
+            state: DuneGoonz
+            entity_id: sensor.epixel_wifi_connection
+          alias: Test if NOT EPixel WiFi = 'DuneGoonz'
+        alias: Test if phones are not connected to home wifi
+      sequence:
+      - service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.away
+        data: {}
+  mode: single
+- id: '1677709022486'
+  alias: 'Lights: Party Mode'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - input_boolean.party_mode
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.party_mode
+        state: 'on'
+      sequence:
+      - service: scene.turn_on
+        target:
+          entity_id: scene.living_room_miami
+        metadata: {}
+      - type: turn_on
+        device_id: f3aeb62956f67194c214ad6611a9ad3d
+        entity_id: switch.discolight
+        domain: switch
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 1
+          milliseconds: 0
+      - type: turn_on
+        device_id: c4869b3a22c21e128a922ff9bded2ce3
+        entity_id: switch.galaxyprojector
+        domain: switch
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.party_mode
+        state: 'off'
+      sequence:
+      - service: scene.turn_on
+        target:
+          entity_id: scene.living_room_relax
+        metadata: {}
+      - type: turn_off
+        device_id: c4869b3a22c21e128a922ff9bded2ce3
+        entity_id: switch.galaxyprojector
+        domain: switch
+      - type: turn_off
+        device_id: f3aeb62956f67194c214ad6611a9ad3d
+        entity_id: switch.discolight
+        domain: switch
+  mode: single
+- id: '1677823508674'
+  alias: 'Environment: Heater Fan'
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.bedroom_hydrometer_temperature
+    above: 80
+  - platform: numeric_state
+    entity_id: sensor.bedroom_hydrometer_temperature
+    below: 78
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: numeric_state
+        entity_id: sensor.bedroom_hydrometer_temperature
+        above: 80
+      - condition: state
+        entity_id: input_boolean.heater_fan_override
+        state: 'off'
+      sequence:
+      - service: switch.turn_on
+        data:
+          entity_id: switch.heaterfan
+    - conditions:
+      - condition: numeric_state
+        entity_id: sensor.bedroom_hydrometer_temperature
+        below: 78
+      sequence:
+      - service: switch.turn_off
+        data:
+          entity_id: switch.heaterfan
+  mode: single
+- id: '1678077352541'
+  alias: 'Helper: Light Detector'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - light.swirly_lamp
+    - light.white_dome
+    - light.pendant
+    - light.tv_backlight
+    - light.tall_lamp
+    - switch.galaxyprojector
+    - switch.discolight
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: device
+          type: is_on
+          device_id: 634030263da3bc16e3dd5d0ebf1443bd
+          entity_id: light.swirly_lamp
+          domain: light
+        - condition: device
+          type: is_on
+          device_id: af0c85d81fd5bbab45cc7efd21191b5d
+          entity_id: light.white_dome
+          domain: light
+        - condition: device
+          type: is_on
+          device_id: 0f1c9e6fdc37df7643ae1daf462d98c1
+          entity_id: light.pendant
+          domain: light
+        - condition: device
+          type: is_on
+          device_id: 209fbe9d76bbea2643b7478efda5d990
+          entity_id: light.tv_backlight
+          domain: light
+        - condition: device
+          type: is_on
+          device_id: 2fc15768e96661e067f1736aaed1ea15
+          entity_id: light.tall_lamp
+          domain: light
+        - condition: device
+          type: is_on
+          device_id: f3aeb62956f67194c214ad6611a9ad3d
+          entity_id: switch.discolight
+          domain: switch
+        - condition: device
+          type: is_on
+          device_id: c4869b3a22c21e128a922ff9bded2ce3
+          entity_id: switch.galaxyprojector
+          domain: switch
+      sequence:
+      - service: input_boolean.turn_on
+        data: {}
+        target:
+          entity_id: input_boolean.light_detector
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: device
+          type: is_off
+          device_id: 634030263da3bc16e3dd5d0ebf1443bd
+          entity_id: light.swirly_lamp
+          domain: light
+        - condition: device
+          type: is_off
+          device_id: af0c85d81fd5bbab45cc7efd21191b5d
+          entity_id: light.white_dome
+          domain: light
+        - condition: device
+          type: is_off
+          device_id: 0f1c9e6fdc37df7643ae1daf462d98c1
+          entity_id: light.pendant
+          domain: light
+        - condition: device
+          type: is_off
+          device_id: 209fbe9d76bbea2643b7478efda5d990
+          entity_id: light.tv_backlight
+          domain: light
+        - condition: device
+          type: is_off
+          device_id: 2fc15768e96661e067f1736aaed1ea15
+          entity_id: light.tall_lamp
+          domain: light
+        - condition: device
+          type: is_off
+          device_id: f3aeb62956f67194c214ad6611a9ad3d
+          entity_id: switch.discolight
+          domain: switch
+        - condition: device
+          type: is_off
+          device_id: c4869b3a22c21e128a922ff9bded2ce3
+          entity_id: switch.galaxyprojector
+          domain: switch
+      sequence:
+      - service: input_boolean.turn_off
+        data: {}
+        target:
+          entity_id: input_boolean.light_detector
+- id: '1678320360602'
+  alias: 'Tag: Bedroom Light Toggle'
+  description: ''
+  trigger:
+  - platform: tag
+    tag_id: 6af84911-9d5e-43f3-a576-a79c2ec7f21d
+    enabled: true
+  - platform: event
+    event_type: bedroom_lights_toggle
+    enabled: true
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: device
+        type: is_off
+        device_id: 634030263da3bc16e3dd5d0ebf1443bd
+        entity_id: light.swirly_lamp
+        domain: light
+      - condition: device
+        type: is_off
+        device_id: af0c85d81fd5bbab45cc7efd21191b5d
+        entity_id: light.white_dome
+        domain: light
+      sequence:
+      - service: light.turn_on
+        data:
+          color_temp: 407
+          brightness_pct: 84
+        target:
+          device_id:
+          - 634030263da3bc16e3dd5d0ebf1443bd
+          - af0c85d81fd5bbab45cc7efd21191b5d
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: device
+          type: is_on
+          device_id: 634030263da3bc16e3dd5d0ebf1443bd
+          entity_id: light.swirly_lamp
+          domain: light
+        - condition: device
+          type: is_on
+          device_id: af0c85d81fd5bbab45cc7efd21191b5d
+          entity_id: light.white_dome
+          domain: light
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          device_id:
+          - 634030263da3bc16e3dd5d0ebf1443bd
+          - af0c85d81fd5bbab45cc7efd21191b5d
+  mode: single
+- id: '1678915225153'
+  alias: 'terrarium: Misters'
+  description: ''
+  trigger:
+  - platform: time_pattern
+    minutes: /2
+  - platform: state
+    entity_id:
+    - input_boolean.mister_override_upper
+    to: 'on'
+  - platform: numeric_state
+    entity_id: sensor.pico_terrarium_humidity_upper
+    above: 95
+  - platform: numeric_state
+    entity_id: sensor.pico_terrarium_humidity_upper
+    below: 90
+  - platform: numeric_state
+    entity_id: sensor.pico_terrarium_humidity_lower
+    above: 95
+  - platform: numeric_state
+    entity_id: sensor.pico_terrarium_humidity_lower
+    below: 90
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: numeric_state
+          entity_id: sensor.pico_terrarium_humidity_upper
+          below: 90
+        - condition: state
+          entity_id: input_boolean.mister_override_upper
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.setting_mode_upper
+          state: 'on'
+      sequence:
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: switch.terrarium_mister_upper
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.mister_override_upper
+        state: 'off'
+      - condition: state
+        entity_id: input_boolean.setting_mode_upper
+        state: 'on'
+      - condition: state
+        entity_id: switch.terrarium_mister_upper
+        state: 'off'
+        for:
+          hours: 2
+          minutes: 0
+          seconds: 0
+      sequence:
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: switch.terrarium_mister_upper
+      - delay:
+          hours: 0
+          minutes: 1
+          seconds: 0
+          milliseconds: 0
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: switch.terrarium_mister_upper
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: numeric_state
+          entity_id: sensor.pico_terrarium_humidity_upper
+          above: 95
+        - condition: state
+          entity_id: input_boolean.mister_override_upper
+          state: 'on'
+        - condition: state
+          entity_id: switch.terrarium_mister_upper
+          state: 'on'
+          for:
+            hours: 0
+            minutes: 3
+            seconds: 0
+        - condition: state
+          entity_id: input_boolean.setting_mode_upper
+          state: 'off'
+      sequence:
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: switch.terrarium_mister_upper
+    alias: Upper Mister
+  - choose:
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: numeric_state
+          entity_id: sensor.pico_terrarium_humidity_lower
+          below: 90
+        - condition: state
+          entity_id: input_boolean.mister_override_lower
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.setting_mode_lower
+          state: 'on'
+      sequence:
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: switch.terrarium_mister_lower
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.mister_override_lower
+        state: 'off'
+      - condition: state
+        entity_id: input_boolean.setting_mode_lower
+        state: 'on'
+      - condition: state
+        entity_id: switch.terrarium_mister_lower
+        state: 'off'
+        for:
+          hours: 2
+          minutes: 0
+          seconds: 0
+      sequence:
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: switch.terrarium_mister_lower
+      - delay:
+          hours: 0
+          minutes: 1
+          seconds: 0
+          milliseconds: 0
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: switch.terrarium_mister_lower
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: numeric_state
+          entity_id: sensor.pico_terrarium_humidity_lower
+          above: 95
+        - condition: state
+          entity_id: input_boolean.mister_override_lower
+          state: 'on'
+        - condition: state
+          entity_id: switch.terrarium_mister_lower
+          state: 'on'
+          for:
+            hours: 0
+            minutes: 3
+            seconds: 0
+        - condition: state
+          entity_id: input_boolean.setting_mode_lower
+          state: 'off'
+      sequence:
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: switch.terrarium_mister_lower
+    alias: Lower Mister
+  - if:
+    - condition: state
+      entity_id: switch.terrarium_mister_upper
+      state: 'on'
+      for:
+        hours: 0
+        minutes: 10
+        seconds: 0
+    then:
+    - service: notify.mobile_app_jpixel
+      data:
+        title: terrarium Alert
+        message: The upper mister has been stuck on for 10m+!!!
+    alias: 'Alert: Upper Mister'
+  - if:
+    - condition: state
+      entity_id: switch.terrarium_mister_lower
+      state: 'on'
+      for:
+        hours: 0
+        minutes: 10
+        seconds: 0
+    then:
+    - service: notify.mobile_app_jpixel
+      data:
+        title: terrarium Alert
+        message: The lower mister has been stuck on for 10m+!!!
+    alias: 'Alert: lower Mister'
+  mode: single
+- id: '1679255798530'
+  alias: 'terrarium: Alert Humidity'
+  description: Humidity alerts for Upper and Lower
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.pico_terrarium_humidity_upper
+    below: 90
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+  - platform: numeric_state
+    entity_id: sensor.pico_terrarium_humidity_lower
+    below: 90
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+  condition:
+  - condition: state
+    entity_id: input_boolean.setting_mode
+    state: 'on'
+  action:
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: state
+          entity_id: input_boolean.setting_mode_upper
+          state: 'on'
+        - condition: state
+          entity_id: input_boolean.pre_setting_mode_upper
+          state: 'off'
+      - condition: numeric_state
+        entity_id: sensor.pico_terrarium_humidity_upper
+        below: 90
+      sequence:
+      - service: notify.mobile_app_jpixel
+        data:
+          message: terrarium (upper)  humidity below 90% for 10m+
+          title: terrarium Humidity Alert
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: state
+          entity_id: input_boolean.setting_mode_lower
+          state: 'on'
+        - condition: state
+          entity_id: input_boolean.pre_setting_mode_lower
+          state: 'off'
+      - condition: numeric_state
+        entity_id: sensor.pico_terrarium_humidity_lower
+        below: 90
+      sequence:
+      - service: notify.mobile_app_jpixel
+        data:
+          message: terrarium (lower)  humidity below 90% for 10m+
+          title: terrarium Humidity Alert
+  mode: single
+- id: '1679256665912'
+  alias: 'Alert: Light Detector'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.lumi_lumi_sensor_motion_aq2_occupancy
+    to: 'off'
+    for:
+      hours: 2
+      minutes: 0
+      seconds: 0
+  - platform: state
+    entity_id:
+    - binary_sensor.lumi_lumi_sensor_motion_aq2_occupancy_2
+    to: 'off'
+    for:
+      hours: 2
+      minutes: 0
+      seconds: 0
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: input_boolean.light_detector
+      state: 'on'
+    - condition: state
+      entity_id: binary_sensor.lumi_lumi_sensor_motion_aq2_occupancy_2
+      state: 'off'
+      for:
+        hours: 2
+        minutes: 0
+        seconds: 0
+    - condition: state
+      entity_id: binary_sensor.lumi_lumi_sensor_motion_aq2_occupancy
+      state: 'off'
+      for:
+        hours: 2
+        minutes: 0
+        seconds: 0
+  action:
+  - service: notify.mobile_app_jpixel
+    data:
+      title: Lights Alert
+      message: ' Occupancy has not been detected for two hours and lights are currently
+        on'
+  mode: single
+- id: '1679442378306'
+  alias: 'terrarium: Fans'
+  description: ''
+  trigger:
+  - platform: time_pattern
+    minutes: /2
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: numeric_state
+          entity_id: sensor.pico_terrarium_o2_upper
+          above: 5000
+        - condition: numeric_state
+          entity_id: sensor.pico_terrarium_temperature_upper
+          above: 75
+          enabled: true
+      - condition: state
+        entity_id: input_boolean.setting_mode_upper
+        state: 'on'
+      sequence:
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: switch.terrarium_fan_upper
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: numeric_state
+          entity_id: sensor.pico_terrarium_o2_upper
+          below: 3500
+        - condition: numeric_state
+          entity_id: sensor.pico_terrarium_temperature_upper
+          below: 76
+      sequence:
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: switch.terrarium_fan_upper
+    alias: Upper Fans
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: numeric_state
+          entity_id: sensor.pico_terrarium_o2_lower
+          above: 5000
+        - condition: numeric_state
+          entity_id: sensor.pico_terrarium_temperature_lower
+          above: 75
+          enabled: true
+      - condition: state
+        entity_id: input_boolean.setting_mode_lower
+        state: 'on'
+      sequence:
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: switch.terrarium_fan_lower
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: numeric_state
+          entity_id: sensor.pico_terrarium_o2_lower
+          below: 3500
+        - condition: numeric_state
+          entity_id: sensor.pico_terrarium_temperature_lower
+          below: 76
+      sequence:
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: switch.terrarium_fan_lower
+    alias: Lower Fans
+  mode: single
+- id: '1680367691304'
+  alias: 'Tag: Livingroom Light Toggle'
+  description: ''
+  trigger:
+  - platform: tag
+    tag_id: f1e3dead-2a31-43d7-a32c-64078b5e3aba
+  - platform: tag
+    tag_id: 711123e8-e01f-483c-863e-a83cf64ae674
+  - platform: event
+    event_type: LivingRoomLightsToggle
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: device
+          type: is_on
+          device_id: 2fc15768e96661e067f1736aaed1ea15
+          entity_id: light.tall_lamp
+          domain: light
+        - condition: device
+          type: is_on
+          device_id: 0f1c9e6fdc37df7643ae1daf462d98c1
+          entity_id: light.pendant
+          domain: light
+        - condition: device
+          type: is_on
+          device_id: 209fbe9d76bbea2643b7478efda5d990
+          entity_id: light.tv_backlight
+          domain: light
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          device_id:
+          - 209fbe9d76bbea2643b7478efda5d990
+          - 0f1c9e6fdc37df7643ae1daf462d98c1
+          - 2fc15768e96661e067f1736aaed1ea15
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: device
+          type: is_off
+          device_id: 2fc15768e96661e067f1736aaed1ea15
+          entity_id: light.tall_lamp
+          domain: light
+        - condition: device
+          type: is_off
+          device_id: 0f1c9e6fdc37df7643ae1daf462d98c1
+          entity_id: light.pendant
+          domain: light
+        - condition: device
+          type: is_off
+          device_id: 209fbe9d76bbea2643b7478efda5d990
+          entity_id: light.tv_backlight
+          domain: light
+      sequence:
+      - service: light.turn_on
+        data: {}
+        target:
+          device_id:
+          - 209fbe9d76bbea2643b7478efda5d990
+          - 0f1c9e6fdc37df7643ae1daf462d98c1
+          - 2fc15768e96661e067f1736aaed1ea15
+  mode: single
+- id: '1680379126219'
+  alias: 'Tag: Party Mode Toggle'
+  description: ''
+  trigger:
+  - platform: tag
+    tag_id: 962aa28a-8273-419b-b279-b8a3de5644ce
+  - platform: event
+    event_type: PartyModeToggle
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.party_mode
+        state: 'on'
+      sequence:
+      - service: input_boolean.turn_off
+        data: {}
+        target:
+          entity_id: input_boolean.party_mode
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.party_mode
+        state: 'off'
+      sequence:
+      - service: input_boolean.turn_on
+        data: {}
+        target:
+          entity_id: input_boolean.party_mode
+  mode: single
+- id: '1680384907799'
+  alias: 'Tag: Hall Light Override'
+  description: ''
+  trigger:
+  - platform: tag
+    tag_id: 0d5829dd-945b-4b47-954d-af0af77eec6d
+  - platform: event
+    event_type: HallLightOverride
+  condition: []
+  action:
+  - service: input_boolean.turn_on
+    data: {}
+    target:
+      entity_id: input_boolean.hall_light_override
+  - delay:
+      hours: 0
+      minutes: 10
+      seconds: 0
+      milliseconds: 0
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.hall_light_override
+  mode: single
+- id: '1680386935511'
+  alias: 'Tag: Heat Fan Override'
+  description: ''
+  trigger:
+  - platform: tag
+    tag_id: a693df23-e59f-4a7e-826a-b396e7cf65e7
+  - platform: event
+    event_type: HeatFanOverride
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.heater_fan_override
+        state: 'off'
+      sequence:
+      - service: input_boolean.turn_on
+        data: {}
+        target:
+          entity_id: input_boolean.heater_fan_override
+      - delay:
+          hours: 2
+          minutes: 0
+          seconds: 0
+          milliseconds: 0
+      - service: input_boolean.turn_off
+        data: {}
+        target:
+          entity_id: input_boolean.heater_fan_override
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.heater_fan_override
+        state: 'on'
+      sequence:
+      - service: input_boolean.turn_off
+        data: {}
+        target:
+          entity_id: input_boolean.heater_fan_override
+    enabled: false
+  - service: input_boolean.turn_on
+    data: {}
+    target:
+      entity_id: input_boolean.heater_fan_override
+  - delay:
+      hours: 2
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.heater_fan_override
+  mode: single
+- id: '1680572624343'
+  alias: 'terrarium: Alert CO2'
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.pico_terrarium_o2_upper
+    above: 5500
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+  - platform: numeric_state
+    entity_id: sensor.pico_terrarium_o2_lower
+    above: 5500
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.setting_mode_upper
+        state: 'on'
+      - condition: numeric_state
+        entity_id: sensor.pico_terrarium_upper_o2_upper
+        above: 5500
+      sequence:
+      - service: notify.mobile_app_jpixel
+        data:
+          message: terrarium upper o2 
+          title: terrarium o2 Alert
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.setting_mode_lower
+        state: 'on'
+      - condition: numeric_state
+        entity_id: sensor.pico_terrarium_o2_lower
+        above: 5500
+      sequence:
+      - service: notify.mobile_app_jpixel
+        data:
+          message: terrarium lower o2 
+          title: terrarium o2 Alert
+  mode: single
+- id: '1680572762286'
+  alias: 'terrarium: Alert Temperature (setting)'
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.pico_terrarium_temperature_upper
+    above: 78
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+  - platform: numeric_state
+    entity_id: sensor.pico_terrarium_temperature_upper
+    below: 69
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+  - platform: numeric_state
+    entity_id: sensor.pico_terrarium_temperature_lower
+    above: 78
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+  - platform: numeric_state
+    entity_id: sensor.pico_terrarium_temperature_lower
+    below: 69
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+  condition:
+  - condition: state
+    entity_id: input_boolean.pre_setting_mode
+    state: 'on'
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.setting_mode_upper
+        state: 'on'
+      - condition: or
+        conditions:
+        - condition: numeric_state
+          entity_id: sensor.pico_terrarium_temperature_upper
+          above: 78
+        - condition: numeric_state
+          entity_id: sensor.pico_terrarium_temperature_upper
+          below: 69
+      sequence:
+      - service: notify.mobile_app_jpixel
+        data:
+          message: terrarium (upper) setting temperature beyond max range
+          title: terrarium Temperature Alert
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.setting_mode_lower
+        state: 'on'
+      - condition: or
+        conditions:
+        - condition: numeric_state
+          entity_id: sensor.pico_terrarium_temperature_lower
+          above: 78
+        - condition: numeric_state
+          entity_id: sensor.pico_terrarium_temperature_lower
+          below: 69
+      sequence:
+      - service: notify.mobile_app_jpixel
+        data:
+          message: terrarium (lower) setting temperature beyond max range
+          title: terrarium Temperature Alert
+  mode: single
+- id: '1680573239858'
+  alias: 'terrarium: Alert Temperature (Pre-setting)'
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.pico_terrarium_temperature_upper
+    above: 86
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+  - platform: numeric_state
+    entity_id: sensor.pico_terrarium_temperature_upper
+    below: 82
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+  - platform: numeric_state
+    entity_id: sensor.pico_terrarium_temperature_lower
+    above: 86
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+  - platform: numeric_state
+    entity_id: sensor.pico_terrarium_temperature_lower
+    below: 82
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+  condition:
+  - condition: state
+    entity_id: input_boolean.pre_setting_mode
+    state: 'on'
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.pre_setting_mode_upper
+        state: 'on'
+      - condition: or
+        conditions:
+        - condition: numeric_state
+          entity_id: sensor.pico_terrarium_temperature_upper
+          above: 86
+        - condition: numeric_state
+          entity_id: sensor.pico_terrarium_temperature_upper
+          below: 82
+      sequence:
+      - service: notify.mobile_app_jpixel
+        data:
+          message: terrarium (upper) pre-setting temperature beyond max range
+          title: terrarium Temperature Alert
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.pre_setting_mode_lower
+        state: 'on'
+      - condition: or
+        conditions:
+        - condition: numeric_state
+          entity_id: sensor.pico_terrarium_temperature_lower
+          above: 86
+        - condition: numeric_state
+          entity_id: sensor.pico_terrarium_temperature_lower
+          below: 82
+      sequence:
+      - service: notify.mobile_app_jpixel
+        data:
+          message: terrarium (lower) pre-setting temperature beyond max range
+          title: terrarium Temperature Alert
+  mode: single
+- id: '1680746589346'
+  alias: 'Alert: Habit Morning Main 2'
+  description: ''
+  trigger:
+  - platform: time
+    at: 09:00:00
+  condition: []
+  action:
+  - service: notify.mobile_app_jpixel
+    data:
+      message: 'Morning Habits: Brush Teeth, Supplements'
+      title: Habit Alert
+  mode: single
+- id: '1680747764321'
+  alias: 'Alert: Habit Morning Main'
+  description: ''
+  trigger:
+  - platform: time
+    at: 07:25:00
+  condition: []
+  action:
+  - service: notify.mobile_app_jpixel
+    data:
+      message: 'Morning Habits: Cold shower, outside light, exercise'
+      title: Habit Alert
+  mode: single
+- id: '1680748288756'
+  alias: 'Alert: Habit Midday'
+  description: ''
+  trigger:
+  - platform: time
+    at: '11:35:00'
+  condition: []
+  action:
+  - service: notify.mobile_app_jpixel
+    data:
+      title: Habit Alert
+      message: 'Midday Habits: Exercise, read, NSDR, supplement'
+  mode: single
+- id: '1680748407698'
+  alias: 'Alert: Habit Nighttime'
+  description: ''
+  trigger:
+  - platform: time
+    at: '21:45:00'
+  condition: []
+  action:
+  - service: notify.mobile_app_jpixel
+    data:
+      title: Habit Alert
+      message: 'Nightly Habits: Floss, supplements'
+  mode: single
+- id: '1681705043661'
+  alias: 'Helper: Hall Light Override'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - input_boolean.hall_light_override
+    to: 'on'
+  condition: []
+  action:
+  - delay:
+      hours: 0
+      minutes: 15
+      seconds: 0
+      milliseconds: 0
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.hall_light_override
+  - service: switch.turn_off
+    data: {}
+    target:
+      entity_id: switch.hall_light
+  mode: single
+- id: '1681863751462'
+  alias: 'Alert: Plants (All)'
+  description: ''
+  trigger:
+  - platform: time
+    at: '18:00:00'
+  - platform: time
+    at: '12:00:00'
+  condition:
+  - condition: time
+    weekday:
+    - mon
+  action:
+  - service: notify.mobile_app_jpixel
+    data:
+      title: House Reminder
+      message: Water all plants please!
+  - service: notify.mobile_app_ephone
+    data: {}
+  mode: single
+- id: '1681863849939'
+  alias: 'Alert: Plants (water intensive)'
+  description: ''
+  trigger:
+  - platform: time
+    at: '18:00:00'
+  - platform: time
+    at: '12:00:00'
+  condition:
+  - condition: time
+    weekday:
+    - thu
+  action:
+  - service: notify.mobile_app_jpixel
+    data:
+      title: House Reminder
+      message: Water fern, and small pot plants please!
+  - service: notify.mobile_app_ephone
+    data:
+      message: Water fern, and small pot plants please!
+      title: House Reminder
+  mode: single
+- id: '1681864176954'
+  alias: 'Alert: Litter'
+  description: ''
+  trigger:
+  - platform: time
+    at: '18:30:00'
+  - platform: time
+    at: '12:30:00'
+  condition:
+  - condition: time
+    weekday:
+    - mon
+    - thu
+  action:
+  - service: notify.mobile_app_jpixel
+    data:
+      title: House Reminder
+      message: Gary says "How's my litter box lookin?"
+  - service: notify.mobile_app_ephone
+    data:
+      message: Gary says "How's my litter box lookin?"
+      title: House Reminder
+  mode: single
+- id: '1683690666962'
+  alias: 'Lights: Bedroom'
+  description: ''
+  trigger:
+  - platform: time_pattern
+    minutes: /1
+  - platform: state
+    entity_id:
+    - input_boolean.bedroom_light_override
+    alias: ' When Bedroom Light Override changes state'
+  - platform: state
+    entity_id:
+    - input_boolean.phones_charging_mode
+    alias: ' When Phones Charging Mode changes state'
+  - platform: state
+    entity_id:
+    - binary_sensor.bedroom_motion_sensor_iaszone
+    enabled: true
+    alias: ' When Bedroom Motion Sensor Motion changes state'
+  - platform: state
+    entity_id:
+    - input_boolean.away
+    alias: When Away changes state
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: time
+          weekday:
+          - mon
+          - tue
+          - wed
+          - thu
+          - fri
+          alias: 'Time Condition: Weekdays'
+          after: 06:29:00
+          before: 08:00:00
+        - condition: device
+          type: is_off
+          device_id: 634030263da3bc16e3dd5d0ebf1443bd
+          entity_id: light.swirly_lamp
+          domain: light
+        - condition: state
+          entity_id: input_boolean.away
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.bedroom_light_override
+          state: 'off'
+      sequence:
+      - service: light.turn_on
+        data:
+          transition: 7
+          rgb_color:
+          - 235
+          - 254
+          - 255
+          brightness_pct: 5
+        target:
+          device_id:
+          - 634030263da3bc16e3dd5d0ebf1443bd
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 2
+          milliseconds: 0
+      - service: light.turn_on
+        data:
+          transition: 200
+          brightness_pct: 40
+          color_temp: 426
+        target:
+          device_id:
+          - 634030263da3bc16e3dd5d0ebf1443bd
+    alias: Wake Up Bitch
+    enabled: true
+  - choose:
+    - conditions:
+      - condition: time
+        after: 08:00:00
+        before: '16:30:00'
+        weekday:
+        - mon
+        - tue
+        - wed
+        - thu
+        - fri
+        alias: Weekday between 8:00AM - 4:30PM
+      - condition: state
+        entity_id: input_boolean.away
+        state: 'off'
+      - condition: state
+        entity_id: input_boolean.bedroom_light_override
+        state: 'off'
+      sequence:
+      - service: light.turn_on
+        data:
+          brightness_pct: 100
+          transition: 7
+          rgb_color:
+          - 235
+          - 254
+          - 255
+        target:
+          device_id:
+          - 634030263da3bc16e3dd5d0ebf1443bd
+      - service: switch.turn_on
+        data: {}
+        target:
+          device_id: 4ecfca8b34949ad88b14a12c5651451a
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: time
+          after: '17:00:00'
+          alias: 'Time Condition: 5-5:02pm'
+          before: '17:02:00'
+        - condition: device
+          type: is_on
+          device_id: 4ecfca8b34949ad88b14a12c5651451a
+          entity_id: switch.desk_lamp
+          domain: switch
+      sequence:
+      - service: light.turn_off
+        data:
+          transition: 10
+        target:
+          device_id:
+          - 634030263da3bc16e3dd5d0ebf1443bd
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: switch.desk_lamp
+    alias: Work Bitch
+    enabled: true
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: time
+          after: '17:01:00'
+          before: '21:00:00'
+          weekday:
+          - sun
+          - mon
+          - tue
+          - wed
+          - thu
+          alias: 'Time Condition: Weeknights 5:00-9:00pm'
+        - condition: time
+          after: '17:01:00'
+          before: '21:30:00'
+          weekday:
+          - fri
+          - sat
+          alias: 'Time Condition: Weekend 5:00-9:30pm'
+        alias: 'Or: Time Conditions for weeknights/weekends'
+      - condition: state
+        state: 'on'
+        entity_id: binary_sensor.bedroom_motion_sensor_iaszone
+      - condition: state
+        entity_id: input_boolean.bedroom_light_override
+        state: 'off'
+      - condition: state
+        entity_id: input_boolean.phones_charging_mode
+        state: 'off'
+      sequence:
+      - service: light.turn_on
+        data:
+          transition: 2
+          brightness_pct: 100
+          color_temp: 373
+        target:
+          device_id:
+          - 634030263da3bc16e3dd5d0ebf1443bd
+          - af0c85d81fd5bbab45cc7efd21191b5d
+        alias: 'Light: Turn on Swirly Lamp, White Dome (Bright)'
+    alias: Bright
+    enabled: true
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: time
+          after: '21:01:00'
+          before: '22:00:00'
+          weekday:
+          - sun
+          - mon
+          - tue
+          - wed
+          - thu
+          alias: Weeknights
+        - condition: time
+          after: '21:31:00'
+          before: '22:45:00'
+          weekday:
+          - fri
+          - sat
+          alias: Weekend
+        alias: 'Or: Time Conditions for weeknights/weekends'
+      - condition: state
+        state: 'on'
+        entity_id: binary_sensor.bedroom_motion_sensor_iaszone
+      - condition: state
+        entity_id: input_boolean.bedroom_light_override
+        state: 'off'
+      - condition: state
+        entity_id: input_boolean.phones_charging_mode
+        state: 'off'
+      sequence:
+      - service: light.turn_on
+        data:
+          transition: 2
+          color_temp: 459
+          brightness_pct: 40
+        target:
+          device_id:
+          - 634030263da3bc16e3dd5d0ebf1443bd
+          - af0c85d81fd5bbab45cc7efd21191b5d
+        alias: 'Light: Turn on Swirly Lamp, White Dome (Relax)'
+    alias: Relax
+    enabled: true
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: time
+          after: '22:01:00'
+          before: '23:00:00'
+          weekday:
+          - sun
+          - mon
+          - tue
+          - wed
+          - thu
+          alias: 'Weeknights '
+        - condition: time
+          after: '22:46:00'
+          before: '23:00:00'
+          weekday:
+          - fri
+          - sat
+          alias: Weekends
+        alias: 'Or: Time Conditions for weeknights/weekends'
+      - condition: state
+        state: 'on'
+        entity_id: binary_sensor.bedroom_motion_sensor_iaszone
+        for:
+          hours: 0
+          minutes: 0
+          seconds: 0
+      - condition: state
+        entity_id: input_boolean.bedroom_light_override
+        state: 'off'
+      - condition: state
+        entity_id: input_boolean.phones_charging_mode
+        state: 'off'
+      sequence:
+      - service: light.turn_on
+        data:
+          transition: 2
+          color_temp: 500
+          brightness_pct: 33
+        target:
+          device_id:
+          - 634030263da3bc16e3dd5d0ebf1443bd
+          - af0c85d81fd5bbab45cc7efd21191b5d
+        alias: 'Light: Turn on Swirly Lamp, White Dome (Nightlight)'
+    alias: Nightlight
+    enabled: true
+  - if:
+    - condition: or
+      conditions:
+      - condition: and
+        conditions:
+        - condition: or
+          conditions:
+          - condition: time
+            after: '17:00:00'
+            before: '22:45:00'
+            weekday:
+            - sun
+            - mon
+            - tue
+            - wed
+            - thu
+            alias: Weeknights between 5-10:45
+          - condition: time
+            after: '17:00:00'
+            before: '23:20:00'
+            weekday:
+            - fri
+            - sat
+            alias: Weekends between 5-11:45
+          alias: Weekend/weeknight time conditions
+        - condition: state
+          state: 'off'
+          for:
+            hours: 0
+            minutes: 5
+            seconds: 0
+          entity_id: binary_sensor.bedroom_motion_sensor_iaszone
+        - condition: state
+          entity_id: input_boolean.bedroom_light_override
+          state: 'off'
+        alias: Test for post work conditions (AND)
+      - condition: and
+        conditions:
+        - condition: not
+          conditions:
+          - condition: time
+            after: '17:00:00'
+            before: '23:20:00'
+            weekday:
+            - fri
+            - sat
+            alias: between 5-11:45
+          alias: Test if Time is NOT 5pm- 11:45pm
+        - condition: state
+          entity_id: binary_sensor.bedroom_motion_sensor_occupancy
+          state: 'off'
+          for:
+            hours: 1
+            minutes: 30
+            seconds: 0
+        alias: Test for Wake/Work Conditions
+      - condition: state
+        entity_id: input_boolean.phones_charging_mode
+        state: 'on'
+      alias: Test for Wake/Work OR post Work conditions
+    then:
+    - service: light.turn_off
+      data:
+        transition: 2
+      target:
+        device_id:
+        - 634030263da3bc16e3dd5d0ebf1443bd
+        - af0c85d81fd5bbab45cc7efd21191b5d
+    alias: 'Turn Off: wake/work and for post work timeframes/conditions'
+  mode: single
+- id: '1684373444217'
+  alias: 'Helper: Bedroom Light Override'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - input_boolean.bedroom_light_override
+    to: 'on'
+  - platform: time
+    at: 00:00:00
+  condition: []
+  action:
+  - if:
+    - condition: state
+      entity_id: input_boolean.bedroom_light_override
+      state: 'on'
+    then:
+    - delay:
+        hours: 6
+        minutes: 0
+        seconds: 0
+        milliseconds: 0
+    - service: input_boolean.turn_off
+      data: {}
+      target:
+        entity_id: input_boolean.bedroom_light_override
+    alias: If Bedroom Light Override is Triggered on
+  - if:
+    - condition: state
+      entity_id: input_boolean.bedroom_light_override
+      state: 'on'
+      for:
+        hours: 6
+        minutes: 10
+        seconds: 0
+    then:
+    - service: input_boolean.turn_off
+      data: {}
+      target:
+        entity_id: input_boolean.bedroom_light_override
+    alias: If Bedroom Light Override is On for 6h+
+  mode: single
+- id: '1686613551376'
+  alias: 'Lights: Hallway'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.hallway_motion_sensor_motion
+  - platform: state
+    entity_id:
+    - input_boolean.hall_light_override
+    from: 'on'
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: input_boolean.hall_light_override
+    state: 'off'
+    enabled: true
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: binary_sensor.hallway_motion_sensor_motion
+        state: 'on'
+      - condition: or
+        conditions:
+        - condition: time
+          after: 06:30:00
+          before: '22:30:00'
+          weekday:
+          - sun
+          - mon
+          - tue
+          - wed
+          - thu
+        - condition: time
+          weekday:
+          - fri
+          - sat
+          after: 06:30:00
+          before: '23:30:00'
+      sequence:
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: switch.hall_light
+    - conditions:
+      - condition: state
+        entity_id: binary_sensor.hallway_motion_sensor_motion
+        state: 'off'
+      sequence:
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: switch.hall_light
+  mode: single
+- id: '1687281183249'
+  alias: 'Helper: Living Room Light Override'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - input_boolean.living_room_light_override
+    to: 'on'
+  condition: []
+  action:
+  - delay:
+      hours: 4
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.living_room_light_override
+  mode: single
+- id: '1688064880178'
+  alias: 'Helper: Phones Charging Mode'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.jpixel_is_charging
+    - binary_sensor.epixel_is_charging
+    alias: When either phone's charging state changes
+  - platform: time_pattern
+    minutes: /1
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: state
+          entity_id: binary_sensor.jpixel_is_charging
+          state: 'on'
+        - condition: state
+          entity_id: binary_sensor.epixel_is_charging
+          state: 'on'
+        alias: Test if both phones are plugged in
+      sequence:
+      - service: input_boolean.turn_on
+        data: {}
+        target:
+          entity_id: input_boolean.phones_charging_mode
+  - if:
+    - condition: or
+      conditions:
+      - condition: state
+        entity_id: binary_sensor.jpixel_is_charging
+        state: 'off'
+      - condition: state
+        entity_id: binary_sensor.epixel_is_charging
+        state: 'off'
+      alias: Test if both phones are plugged in
+    then:
+    - service: input_boolean.turn_off
+      data: {}
+      target:
+        entity_id: input_boolean.phones_charging_mode
+  mode: single
+- id: '1689726251628'
+  alias: 'Mode: Guest'
+  description: ''
+  trigger:
+  - platform: time_pattern
+    minutes: /2
+    alias: Trigger every 2 minutes
+  - platform: state
+    entity_id:
+    - binary_sensor.lumi_lumi_sensor_motion_aq2_iaszone_2
+    alias: When Bedroom Motion Sensor Motion changes
+  - platform: state
+    entity_id:
+    - binary_sensor.lumi_lumi_sensor_motion_aq2_motion
+    alias: When Living room motion sensor Motion changes
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: state
+          entity_id: input_boolean.away
+          state: 'on'
+        - condition: or
+          conditions:
+          - condition: not
+            conditions:
+            - condition: state
+              entity_id: binary_sensor.lumi_lumi_sensor_motion_aq2_iaszone_2
+              state: 'off'
+              for:
+                hours: 3
+                minutes: 0
+                seconds: 0
+            alias: Confirm Bedroom Motion Sensor NOT Clear for 3h
+          - condition: not
+            conditions:
+            - condition: state
+              entity_id: binary_sensor.lumi_lumi_sensor_motion_aq2_motion
+              for:
+                hours: 3
+                minutes: 0
+                seconds: 0
+              state: ''
+            alias: ' Confirm Living Room Motion Sensor NOT Clear for 3h'
+          alias: 'Or: Test if motion sensors are not clear for 3+h'
+        alias: 'And: Test if Away Mode on AND if motion sensors not clear for 3+h'
+      sequence:
+      - service: input_boolean.turn_on
+        data: {}
+        target:
+          entity_id: input_boolean.guest_mode
+    alias: Turn On
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: state
+          entity_id: input_boolean.away
+          state: 'off'
+        - condition: state
+          entity_id: binary_sensor.lumi_lumi_sensor_motion_aq2_iaszone_2
+          state: 'off'
+          for:
+            hours: 3
+            minutes: 0
+            seconds: 0
+          alias: Confirm Bedroom Motion Sensor is Clear for 3h
+        - condition: state
+          entity_id: binary_sensor.lumi_lumi_sensor_motion_aq2_motion
+          for:
+            hours: 3
+            minutes: 0
+            seconds: 0
+          state: 'off'
+          alias: Confirm Living room motion sensor is Clear for 3h
+        alias: 'Or: Test if Away Mode off OR if motion sensors clear for 3+h'
+      sequence:
+      - service: input_boolean.turn_off
+        data: {}
+        target:
+          entity_id: input_boolean.guest_mode
+    alias: Turn Off
+  mode: single
+- id: '1689797889265'
+  alias: 'Alert: Device Battery'
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.bedroom_motion_sensor_battery
+    below: 11
+  - platform: numeric_state
+    entity_id: sensor.living_room_motion_sensor_battery
+    below: 11
+  - platform: numeric_state
+    entity_id: sensor.hallway_motion_sensor_battery
+    below: 11
+  condition: []
+  action:
+  - if:
+    - condition: numeric_state
+      entity_id: sensor.bedroom_motion_sensor_battery
+      below: 10
+    - condition: numeric_state
+      entity_id: sensor.living_room_motion_sensor_battery
+      below: 10
+    - condition: numeric_state
+      entity_id: sensor.hallway_motion_sensor_battery
+      below: 10
+    then:
+    - service: notify.mobile_app_jpixel
+      data:
+        title: Battery Monitor Alert!
+        message: Your battery monitor has sensed a device with low battery
+    alias: 'If > Then: If batteries are <11% then notify JPixel'
+  mode: single
+- id: '1689897522552'
+  alias: 'Alert: Offline Devices'
+  description: ''
+  trigger:
+  - platform: time_pattern
+    minutes: '2'
+  condition: []
+  action:
+  - service: python_script.set_state
+    data:
+      entity_id: binary_sensor.lumi_lumi_sensor_motion_aq2_motion
+      state: offline
+    enabled: false
+  - if:
+    - condition: state
+      entity_id: binary_sensor.bedroom_motion_sensor_iaszone
+      state: unavailable
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 0
+    then:
+    - service: notify.mobile_app_jpixel
+      data:
+        message: Bedroom motion sensor appears to be offline
+        title: 'Alert: Device Offline'
+    alias: 'If/Then: If Bedroom Motion Sensor ''Unavailable'', then notify'
+  - if:
+    - condition: state
+      entity_id: binary_sensor.living_room_motion_sensor_motion
+      state: unavailable
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 0
+    then:
+    - service: notify.mobile_app_jpixel
+      data:
+        message: Living room motion sensor appears to be offline
+        title: 'Alert: Device Offline'
+    alias: 'If/Then: If Living Room Motion Sensor ''Unavailable'', then notify'
+  - if:
+    - condition: state
+      entity_id: binary_sensor.hallway_motion_sensor_motion
+      state: unavailable
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 0
+    then:
+    - service: notify.mobile_app_jpixel
+      data:
+        message: Hallway motion sensor appears to be offline
+        title: 'Alert: Device Offline'
+    alias: 'If/Then: If Hallway Motion Sensor ''Unavailable'', then notify'
+  mode: single
+- id: '1689957759407'
+  alias: 'Helper: GitHub Sync'
+  description: ''
+  trigger:
+  - platform: event
+    event_type: folder_watcher
+    event_data:
+      event_type: created
+  condition:
+  - '{{ not trigger.event.data.path.endswith(''/.cloud'') }}'
+  - '{{ not trigger.event.data.path.endswith(''/.git'') }}'
+  - '{{ not trigger.event.data.path.endswith(''/.ssh'') }}'
+  - '{{ not trigger.event.data.path.endswith(''/.storage'') }}'
+  - '{{ not trigger.event.data.path.endswith(''/secrets.yaml'') }}'
+  - '{{ not trigger.event.data.path.startswith(''/zigbee'') }}'
+  - '{{ not trigger.event.data.path.startswith(''/home-assistant'') }}'
+  - '{{ not trigger.event.data.path.endswith(''/.HA_VERSION'') }}'
+  - '{{ not trigger.event.data.path.endswith(''/deps'') }}'
+  - '{{ not trigger.event.data.path.endswith(''/tts'') }}'
+  - '{{ not trigger.event.data.path.endswith(''/www'') }}'
+  - '{{ not trigger.event.data.path.startswith(''/id_rsa'') }}'
+  action:
+  - service: shell_command.pushupdates_to_github
+    data: {}
+    alias: Call service 'pushupdates_to_github'
+  mode: single
+- id: '1690413379842'
+  alias: 'Device: Picture Frame'
+  description: ''
+  trigger:
+  - platform: time_pattern
+    minutes: /10
+  condition: []
+  action:
+  - if:
+    - condition: or
+      conditions:
+      - condition: time
+        after: 06:00:00
+        before: '23:00:00'
+        weekday:
+        - sun
+        - mon
+        - tue
+        - wed
+        - thu
+        alias: 'Weeknights '
+      - condition: time
+        after: 06:00:00
+        before: '23:00:00'
+        weekday:
+        - fri
+        - sat
+        alias: Weekends
+      alias: 'Or: Time Conditions for weeknights/weekends'
+    then:
+    - service: switch.turn_on
+      data: {}
+      target:
+        entity_id: switch.picture_frame_power
+    else:
+    - service: switch.turn_off
+      data: {}
+      target:
+        entity_id: switch.picture_frame_power
+    alias: 'If/Then/Else: If time  conditions true Then turn on frame Else turn off
+      frame'
+  mode: single
